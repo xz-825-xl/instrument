@@ -1,0 +1,6 @@
+Launcher.class
+MyTransformer.class
+MyApplication.class
+MyInstrumentationAgent.class
+Runner.class
+AgentLoader.class
