@@ -6,18 +6,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
- * Created by Mmn on 2019/6/30.
+ * @author zy
  * To be a happy coder!
  */
 public class MyTransformer implements ClassFileTransformer {
 
     private static Logger logger = LogManager.getLogger(MyTransformer.class);
 
-    //需要监控的方法
+    /**
+     * 需要监控的方法
+     */
     private static final String WITHDRAW_MONEY_METHOD = "run";
 
     /**
@@ -34,10 +35,12 @@ public class MyTransformer implements ClassFileTransformer {
         this.targetClassLoader = targetClassLoader;
     }
 
+    @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         byte[] byteCode = classfileBuffer;
-        String finalTargetClassName = this.targetClassName.replaceAll("\\.", "/"); //replace . with /
+        //replace . with /
+        String finalTargetClassName = this.targetClassName.replaceAll("\\.", "/");
         if (!className.equals(finalTargetClassName)) {
             return byteCode;
         }

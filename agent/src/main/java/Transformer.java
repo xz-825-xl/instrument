@@ -1,4 +1,8 @@
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CodeConverter;
+import javassist.CtClass;
+import javassist.CtMethod;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
@@ -7,7 +11,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
- * Created by Mmn on 2019/6/29.
+ * @author zy
  * To be a happy coder!
  */
 public class Transformer implements ClassFileTransformer {
@@ -33,7 +37,7 @@ public class Transformer implements ClassFileTransformer {
                 CtMethod[] methods = cl.getDeclaredMethods();
                 for (int i = 0; i < methods.length; i++) {
                     if (methods[i].isEmpty() == false) {
-                        AOPInsertMethod(methods[i]);
+                        aopInsertMethod(methods[i]);
                     }
                 }
                 transformed = cl.toBytecode();
@@ -49,9 +53,10 @@ public class Transformer implements ClassFileTransformer {
         return transformed;
     }
 
-    private void AOPInsertMethod(CtMethod method) throws NotFoundException, CannotCompileException {
+    private void aopInsertMethod(CtMethod method) throws CannotCompileException {
         //situation 1:添加监控时间
         method.instrument(new ExprEditor() {
+            @Override
             public void edit(MethodCall m) throws CannotCompileException {
                 m.replace("{ long stime = System.currentTimeMillis(); $_ = $proceed($$);System.out.println(\""
                         + m.getClassName() + "." + m.getMethodName()
