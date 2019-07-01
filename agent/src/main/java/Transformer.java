@@ -1,13 +1,11 @@
 import javassist.CannotCompileException;
 import javassist.ClassPool;
-import javassist.CodeConverter;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
@@ -16,10 +14,10 @@ import java.security.ProtectionDomain;
  */
 public class Transformer implements ClassFileTransformer {
 
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer){
         byte[] transformed = null;
         System.out.println("Transforming " + className);
-        ClassPool pool = null;
+        ClassPool pool;
         CtClass cl = null;
         try {
             pool = ClassPool.getDefault();
@@ -27,17 +25,11 @@ public class Transformer implements ClassFileTransformer {
             cl = pool.makeClass(new java.io.ByteArrayInputStream(
                     classfileBuffer));
 
-//            CtMethod aop_method = pool.get("com.jdktest.instrument.AopMethods").
-//                    getDeclaredMethod("aopMethod");
-//            System.out.println(aop_method.getLongName());
-
-            CodeConverter convert = new CodeConverter();
-
-            if (cl.isInterface() == false) {
+            if (!cl.isInterface()) {
                 CtMethod[] methods = cl.getDeclaredMethods();
-                for (int i = 0; i < methods.length; i++) {
-                    if (methods[i].isEmpty() == false) {
-                        aopInsertMethod(methods[i]);
+                for (CtMethod method : methods) {
+                    if (!method.isEmpty()) {
+                        aopInsertMethod(method);
                     }
                 }
                 transformed = cl.toBytecode();
